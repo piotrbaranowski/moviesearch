@@ -70,7 +70,7 @@ export const App: React.FC = () => {
       timeoutReference.current = setTimeout(() => {
         abortController.current = new AbortController();
         const parameters = new URLSearchParams({
-          apikey: encodeURIComponent(process.env.REACT_APP_OMDB_API_KEY!),
+          apikey: process.env.REACT_APP_OMDB_API_KEY!,
           ...queryParser(searchQuery),
         });
         fetch(`http://www.omdbapi.com/?${parameters.toString()}`, {

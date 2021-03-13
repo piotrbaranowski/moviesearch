@@ -7,13 +7,12 @@ export interface SearchParameters {
 
 export const queryParser = (query: string) => {
   const parameters: SearchParameters = {
-    s: encodeURIComponent(query.replace(regexp, "")),
+    s: query.replace(regexp, ""),
   };
 
   const match = query.match(regexp);
-  console.log(match);
   if (match != null) {
-    parameters.y = encodeURIComponent(match[1] == null ? match[2] : match[1]);
+    parameters.y = match[1] == null ? match[2] : match[1];
   }
 
   return parameters;

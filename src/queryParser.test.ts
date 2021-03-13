@@ -9,11 +9,6 @@ describe("Given queryParse", () => {
     ["1999 alien alien", { s: "alien alien", y: "1999" }],
     ["2000: alien alien", { s: "2000: alien alien" }],
   ])("When the query is '%s' Then should return %s", (query, expected) => {
-    expect(queryParser(query)).toEqual(
-      Object.keys(expected).reduce((accumulator, key) => {
-        accumulator[key] = encodeURIComponent((expected as any)[key]);
-        return accumulator;
-      }, {} as any)
-    );
+    expect(queryParser(query)).toEqual(expected);
   });
 });
