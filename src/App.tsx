@@ -6,10 +6,16 @@ import React, {
   useState,
 } from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import "./App.css";
+import styles from "./App.module.scss";
+import { MoviesResponse } from "./MoviesResponse";
+import { Movies } from "./Movies";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCompactDisc } from "@fortawesome/free-solid-svg-icons";
 
 export const App: React.FC = () => {
-  const [searchResults, setSearchResults] = useState<any>(null);
+  const [searchResults, setSearchResults] = useState<MoviesResponse | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const history = useHistory();
@@ -61,15 +67,39 @@ export const App: React.FC = () => {
             if (error.name !== "AbortError") throw error;
           });
       }, 300);
+    } else {
+      setSearchResults(null);
     }
   }, [setSearchResults, searchQuery, abortController]);
 
   return (
     <>
-      <input onChange={updateSearchQuery} value={searchQuery} />
-      {JSON.stringify(searchResults)}
-      loading: {JSON.stringify(isLoading)}
-      query: {JSON.stringify(searchQuery)}
+      <div className={styles.background}>
+        <h1>Movie search</h1>
+        <div className={styles.textCenter}>
+          <input
+            autoFocus
+            className={styles.giantInput}
+            onChange={updateSearchQuery}
+            value={searchQuery}
+            placeholder="e.g. Alien 1987"
+          />
+          {isLoading}
+        </div>
+      </div>
+      <div className={styles.grid}>
+        {isLoading === true ? (
+          <FontAwesomeIcon
+            icon={faCompactDisc}
+            spin
+            className={styles.loader}
+          />
+        ) : searchResults == null ? null : searchResults.Search == null ? (
+          <>no results</>
+        ) : (
+          <Movies movies={searchResults.Search} />
+        )}
+      </div>
     </>
   );
 };

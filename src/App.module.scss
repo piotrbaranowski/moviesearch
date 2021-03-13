@@ -1,0 +1,57 @@
+body,
+html,
+:global(#root) {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+$pagePadding: 20px;
+
+.background {
+  max-width: 1280px;
+  width: calc(100% - #{2 * $pagePadding});
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $pagePadding;
+  padding-right: $pagePadding;
+}
+
+.giantInput {
+  width: 100%;
+  font-size: 35px;
+  padding: 20px 0;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid lightgray;
+  margin-bottom: 2px;
+  transition: border-bottom-color 0.15s, padding-bottom 0.15s,
+    border-bottom-width 0.15s;
+  &:hover,
+  &:focus {
+    border-bottom-color: #677bd9;
+  }
+  &:focus {
+    border-bottom-width: 3px;
+    padding-bottom: 18px;
+  }
+}
+
+.grid {
+  margin: 50px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.loader {
+  font-size: 50px;
+  color: #677bd9;
+  animation-duration: 0.2s;
+}
