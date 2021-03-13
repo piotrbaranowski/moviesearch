@@ -44,9 +44,14 @@ export const App: React.FC = () => {
       setIsLoading(true);
       timeoutReference.current = setTimeout(() => {
         abortController.current = new AbortController();
-        fetch(`http://www.omdbapi.com/?s=${encodeURIComponent(searchQuery)}`, {
-          signal: abortController.current.signal,
-        })
+        fetch(
+          `http://www.omdbapi.com/?s=${encodeURIComponent(
+            searchQuery
+          )}&apikey=${encodeURIComponent(process.env.REACT_APP_OMDB_API_KEY!)}`,
+          {
+            signal: abortController.current.signal,
+          }
+        )
           .then((results) => results.json())
           .then((results) => {
             setSearchResults(results);
