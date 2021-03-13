@@ -21,25 +21,30 @@ $pagePadding: 20px;
   margin-right: auto;
   padding-left: $pagePadding;
   padding-right: $pagePadding;
+  position: relative;
 }
 
 .giantInput {
-  width: 100%;
+  width: calc(100% - 80px);
   font-size: 35px;
-  padding: 20px 0;
+  padding: 20px 80px 20px 0;
   outline: none;
   border: none;
   border-bottom: 1px solid lightgray;
-  margin-bottom: 2px;
   transition: border-bottom-color 0.15s, padding-bottom 0.15s,
     border-bottom-width 0.15s;
+  will-change: border-bottom-color, padding-bottom, border-bottom-width;
+
   &:hover,
   &:focus {
     border-bottom-color: #677bd9;
   }
   &:focus {
-    border-bottom-width: 3px;
-    padding-bottom: 18px;
+    border-bottom-width: 4px;
+    padding-bottom: 17px;
+  }
+  &::placeholder {
+    color: lightgray;
   }
 }
 
@@ -54,4 +59,33 @@ $pagePadding: 20px;
   font-size: 50px;
   color: #677bd9;
   animation-duration: 0.2s;
+}
+
+.faded {
+  color: lightgray;
+  font-size: 20px;
+}
+
+.inputSuffix {
+  position: absolute;
+  right: 40px;
+  bottom: 23px;
+  font-size: 35px;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  color: lightgray;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  will-change: color, transform;
+
+  &:active {
+    color: #677bd9;
+  }
+  &:hover,
+  &:active {
+    transform: scale(1.2);
+  }
 }

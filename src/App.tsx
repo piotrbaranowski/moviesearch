@@ -11,6 +11,12 @@ import { MoviesResponse } from "./MoviesResponse";
 import { Movies } from "./Movies";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCompactDisc } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSmile,
+  faSmileWink,
+  faTimesCircle,
+} from "@fortawesome/free-regular-svg-icons";
+import { queryParser } from "./queryParser";
 
 export const App: React.FC = () => {
   const [searchResults, setSearchResults] = useState<MoviesResponse | null>(
@@ -26,12 +32,25 @@ export const App: React.FC = () => {
   );
 
   const updateSearchQuery = useCallback(
-    (inputEvent: React.ChangeEvent<HTMLInputElement>) =>
+    (newSearchQuery: string) =>
       history.push({
-        search: `q=${encodeURIComponent(inputEvent.target.value)}`,
+        search:
+          newSearchQuery === ""
+            ? ""
+            : `q=${encodeURIComponent(newSearchQuery)}`,
       }),
     [history]
   );
+
+  const updateSearchQueryByEvent = useCallback(
+    (inputEvent: React.ChangeEvent<HTMLInputElement>) =>
+      updateSearchQuery(inputEvent.target.value),
+    [updateSearchQuery]
+  );
+
+  const clearSearchQuery = useCallback(() => updateSearchQuery(""), [
+    updateSearchQuery,
+  ]);
 
   const abortController = useRef<AbortController | null>(null);
   const timeoutReference = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -50,14 +69,13 @@ export const App: React.FC = () => {
       setIsLoading(true);
       timeoutReference.current = setTimeout(() => {
         abortController.current = new AbortController();
-        fetch(
-          `http://www.omdbapi.com/?s=${encodeURIComponent(
-            searchQuery
-          )}&apikey=${encodeURIComponent(process.env.REACT_APP_OMDB_API_KEY!)}`,
-          {
-            signal: abortController.current.signal,
-          }
-        )
+        const parameters = new URLSearchParams({
+          apikey: encodeURIComponent(process.env.REACT_APP_OMDB_API_KEY!),
+          ...queryParser(searchQuery),
+        });
+        fetch(`http://www.omdbapi.com/?${parameters.toString()}`, {
+          signal: abortController.current.signal,
+        })
           .then((results) => results.json())
           .then((results) => {
             setSearchResults(results);
@@ -76,16 +94,16 @@ export const App: React.FC = () => {
     <>
       <div className={styles.background}>
         <h1>Movie search</h1>
-        <div className={styles.textCenter}>
-          <input
-            autoFocus
-            className={styles.giantInput}
-            onChange={updateSearchQuery}
-            value={searchQuery}
-            placeholder="e.g. Alien 1987"
-          />
-          {isLoading}
-        </div>
+        <input
+          autoFocus
+          className={styles.giantInput}
+          onChange={updateSearchQueryByEvent}
+          value={searchQuery}
+          placeholder="e.g. Alien 1979"
+        />
+        <button onClick={clearSearchQuery} className={styles.inputSuffix}>
+          <FontAwesomeIcon icon={faTimesCircle} />
+        </button>
       </div>
       <div className={styles.grid}>
         {isLoading === true ? (
@@ -94,8 +112,16 @@ export const App: React.FC = () => {
             spin
             className={styles.loader}
           />
-        ) : searchResults == null ? null : searchResults.Search == null ? (
-          <>no results</>
+        ) : searchResults == null ? (
+          <span className={styles.faded}>
+            Start with a movie title, you can add a production year to narrow
+            down results <FontAwesomeIcon icon={faSmile} />
+          </span>
+        ) : searchResults.Search == null ? (
+          <span className={styles.faded}>
+            No movies found, try ask in another way{" "}
+            <FontAwesomeIcon icon={faSmileWink} />
+          </span>
         ) : (
           <Movies movies={searchResults.Search} />
         )}
