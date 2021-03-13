@@ -1,26 +1,70 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useHistory, useLocation } from "react-router-dom";
+import "./App.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+export const App: React.FC = () => {
+  const [searchResults, setSearchResults] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
+  const history = useHistory();
+
+  const searchQuery = useMemo(
+    () => new URLSearchParams(location.search).get("q") ?? "",
+    [location.search]
   );
-}
 
-export default App;
+  const updateSearchQuery = useCallback(
+    (inputEvent: React.ChangeEvent<HTMLInputElement>) =>
+      history.push({
+        search: `q=${encodeURIComponent(inputEvent.target.value)}`,
+      }),
+    [history]
+  );
+
+  const abortController = useRef<AbortController | null>(null);
+  const timeoutReference = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (timeoutReference.current != null) {
+      clearTimeout(timeoutReference.current);
+      timeoutReference.current = null;
+    }
+    if (abortController.current != null) {
+      abortController.current?.abort();
+      abortController.current = null;
+    }
+    setIsLoading(false);
+    if (searchQuery !== "") {
+      setIsLoading(true);
+      timeoutReference.current = setTimeout(() => {
+        abortController.current = new AbortController();
+        fetch(`http://www.omdbapi.com/?s=${encodeURIComponent(searchQuery)}`, {
+          signal: abortController.current.signal,
+        })
+          .then((results) => results.json())
+          .then((results) => {
+            setSearchResults(results);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            if (error.name !== "AbortError") throw error;
+          });
+      }, 300);
+    }
+  }, [setSearchResults, searchQuery, abortController]);
+
+  return (
+    <>
+      <input onChange={updateSearchQuery} value={searchQuery} />
+      {JSON.stringify(searchResults)}
+      loading: {JSON.stringify(isLoading)}
+      query: {JSON.stringify(searchQuery)}
+    </>
+  );
+};
